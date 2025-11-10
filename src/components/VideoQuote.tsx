@@ -17,7 +17,6 @@ export const VideoQuote = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(() => Math.floor(Math.random() * videos.length));
   const [showQuote, setShowQuote] = useState(false);
   const [activeVideo, setActiveVideo] = useState<1 | 2>(1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const videoRef1 = useRef<HTMLVideoElement>(null);
   const videoRef2 = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +65,7 @@ export const VideoQuote = () => {
     loadQuotes();
   }, []);
 
-  // Continuous quote cycling
+  // Continuous quote and video cycling together
   const startQuoteCycling = (quoteList: string[]) => {
     if (quoteList.length === 0) return;
 
@@ -75,27 +74,50 @@ export const VideoQuote = () => {
       clearInterval(quoteIntervalRef.current);
     }
 
-    // Show first quote immediately
-    const showNewQuote = () => {
+    // Show new quote and transition video
+    const showNewQuoteAndVideo = () => {
       const randomQuote = quoteList[Math.floor(Math.random() * quoteList.length)];
-      setCurrentQuote(randomQuote);
+      const randomVideoIndex = Math.floor(Math.random() * videos.length);
+
+      // Fade out current quote
       setShowQuote(false);
 
-      // Fade in after brief delay
-      setTimeout(() => {
-        setShowQuote(true);
-      }, 100);
+      // Transition to new video
+      const nextVideo = activeVideo === 1 ? videoRef2.current : videoRef1.current;
+      if (nextVideo) {
+        nextVideo.src = videos[randomVideoIndex];
+        nextVideo.currentTime = 0;
+        nextVideo.load();
+
+        nextVideo.onloadeddata = () => {
+          nextVideo.play().catch(err => console.log("Play error:", err));
+
+          // Crossfade videos
+          setTimeout(() => {
+            setActiveVideo(activeVideo === 1 ? 2 : 1);
+            setCurrentVideoIndex(randomVideoIndex);
+
+            // Show new quote after video crossfade starts
+            setTimeout(() => {
+              setCurrentQuote(randomQuote);
+              setShowQuote(true);
+            }, 500);
+          }, 500);
+        };
+      }
     };
 
     // Show first quote after 1 second
     setTimeout(() => {
-      showNewQuote();
+      const randomQuote = quoteList[Math.floor(Math.random() * quoteList.length)];
+      setCurrentQuote(randomQuote);
+      setShowQuote(true);
     }, 1000);
 
-    // Then cycle quotes every 8 seconds (1s fade in + 5s visible + 1s fade out + 1s gap)
+    // Then cycle quotes and videos every 13 seconds (1s fade in + 10s visible + 1s fade out + 1s gap)
     quoteIntervalRef.current = window.setInterval(() => {
-      showNewQuote();
-    }, 8000);
+      showNewQuoteAndVideo();
+    }, 13000);
   };
 
   // Cleanup interval on unmount
@@ -106,36 +128,6 @@ export const VideoQuote = () => {
       }
     };
   }, []);
-
-  const startTransition = () => {
-    if (isTransitioning) return;
-
-    setIsTransitioning(true);
-
-    // Prepare next random video
-    const randomVideoIndex = Math.floor(Math.random() * videos.length);
-
-    // Preload next video in the inactive video element
-    const nextVideo = activeVideo === 1 ? videoRef2.current : videoRef1.current;
-    if (nextVideo) {
-      nextVideo.src = videos[randomVideoIndex];
-      nextVideo.currentTime = 0;
-      nextVideo.load();
-
-      // Wait for video to be ready, then start crossfade
-      nextVideo.onloadeddata = () => {
-        nextVideo.play().catch(err => console.log("Play error:", err));
-
-        // Start crossfade after 1 second (at 24s mark)
-        setTimeout(() => {
-          setActiveVideo(activeVideo === 1 ? 2 : 1);
-          setCurrentVideoIndex(randomVideoIndex);
-          setIsTransitioning(false);
-        }, 1000);
-      };
-    }
-  };
-
 
   // Fullscreen functionality
   const toggleFullscreen = () => {
@@ -161,32 +153,6 @@ export const VideoQuote = () => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
-
-  // Handle video timing and transitions - ensures continuous looping
-  useEffect(() => {
-    const video1 = videoRef1.current;
-    const video2 = videoRef2.current;
-    const activeVideoRef = activeVideo === 1 ? video1 : video2;
-
-    if (!activeVideoRef || quotes.length === 0) return;
-
-    const handleTimeUpdate = () => {
-      const currentTime = activeVideoRef.currentTime;
-
-      // Start preloading and transition at 23 seconds for seamless loop
-      if (currentTime >= 23 && !isTransitioning) {
-        startTransition();
-      }
-
-      // Loop back to start at 25 seconds
-      if (currentTime >= VIDEO_DURATION) {
-        activeVideoRef.currentTime = 0;
-      }
-    };
-
-    activeVideoRef.addEventListener("timeupdate", handleTimeUpdate);
-    return () => activeVideoRef.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [activeVideo, showQuote, isTransitioning, quotes]);
 
   return (
     <div
