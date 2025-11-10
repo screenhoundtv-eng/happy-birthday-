@@ -75,35 +75,6 @@ export const VideoQuote = () => {
     loadQuotes();
   }, []);
 
-  const randomizeCombination = (quoteList: string[] = quotes) => {
-    if (quoteList.length === 0) return;
-
-    const randomQuote = quoteList[Math.floor(Math.random() * quoteList.length)];
-    const randomVideoIndex = Math.floor(Math.random() * videos.length);
-
-    setShowQuote(false);
-    setCurrentQuote(randomQuote);
-    setCurrentVideoIndex(randomVideoIndex);
-    setActiveVideo(1);
-
-    // Reset and play first video
-    const video1 = videoRef1.current;
-    if (video1) {
-      video1.currentTime = 0;
-      video1.play().catch(err => console.log("Play error:", err));
-    }
-
-    // Fade in quote after 2 seconds (1.5s fade in)
-    setTimeout(() => {
-      setShowQuote(true);
-
-      // Keep quote visible for 5 seconds, then fade out (1.5s fade out)
-      setTimeout(() => {
-        setShowQuote(false);
-      }, 5000);
-    }, 2000);
-  };
-
   const startTransition = () => {
     if (isTransitioning) return;
 
