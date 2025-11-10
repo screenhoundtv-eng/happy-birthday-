@@ -230,23 +230,26 @@ export const VideoQuote = () => {
       <div className="absolute inset-0 bg-black/30" />
 
       {/* Quote Overlay */}
-      <p
-        className={`
-          absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-          text-white text-center font-bold leading-tight
-          px-8 md:px-16 lg:px-32 max-w-[90vw]
-          transition-opacity duration-[1500ms] ease-in-out
-          ${showQuote ? "opacity-100" : "opacity-0"}
-        `}
-        style={{
-          fontSize: 'clamp(2.5rem, 8vw, 6rem)',
-          fontFamily: '"Arial Black", "Arial Bold", Impact, "Times New Roman", serif',
-          fontWeight: 900,
-          textShadow: "0 4px 12px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8)",
-        }}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 p-5 text-center max-w-[80%] pointer-events-none"
       >
-        {currentQuote}
-      </p>
+        <p
+          className={`
+            text-white text-center
+            transition-opacity duration-[1000ms] ease-in-out
+            ${showQuote ? "opacity-100" : "opacity-0"}
+          `}
+          style={{
+            fontSize: '3.5vw',
+            fontFamily: "'Helvetica Neue', Arial, sans-serif",
+            fontWeight: 900,
+            lineHeight: 1.2,
+            textShadow: "0 0 10px rgba(0, 0, 0, 0.9)",
+          }}
+        >
+          {currentQuote}
+        </p>
+      </div>
 
       {/* Watermark Logo */}
       <div className="absolute bottom-4 right-4 z-10 opacity-60 hover:opacity-80 transition-opacity">
