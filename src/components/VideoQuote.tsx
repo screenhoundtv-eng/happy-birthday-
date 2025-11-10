@@ -90,17 +90,17 @@ export const VideoQuote = () => {
         nextVideo.onloadeddata = () => {
           nextVideo.play().catch(err => console.log("Play error:", err));
 
-          // Crossfade videos
+          // Crossfade videos immediately
           setTimeout(() => {
             setActiveVideo(activeVideo === 1 ? 2 : 1);
             setCurrentVideoIndex(randomVideoIndex);
 
-            // Show new quote after video crossfade starts
+            // Show new quote quickly after crossfade starts
             setTimeout(() => {
               setCurrentQuote(randomQuote);
               setShowQuote(true);
-            }, 500);
-          }, 500);
+            }, 200);
+          }, 100);
         };
       }
     };
@@ -163,7 +163,7 @@ export const VideoQuote = () => {
       <video
         ref={videoRef1}
         src={videos[currentVideoIndex]}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out ${
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[800ms] ease-in-out ${
           activeVideo === 1 ? "opacity-100" : "opacity-0"
         }`}
         autoPlay
@@ -173,7 +173,7 @@ export const VideoQuote = () => {
       />
       <video
         ref={videoRef2}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out ${
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[800ms] ease-in-out ${
           activeVideo === 2 ? "opacity-100" : "opacity-0"
         }`}
         playsInline
@@ -191,12 +191,12 @@ export const VideoQuote = () => {
         <p
           className={`
             text-white text-center
-            transition-opacity duration-[1000ms] ease-in-out
+            transition-opacity duration-[600ms] ease-in-out
             ${showQuote ? "opacity-100" : "opacity-0"}
           `}
           style={{
             color: '#ffffff',
-            fontSize: '3.5vw',
+            fontSize: '4vw',
             fontFamily: "'Helvetica Neue', Arial, sans-serif",
             fontWeight: 900,
             lineHeight: 1.2,
@@ -208,11 +208,11 @@ export const VideoQuote = () => {
       </div>
 
       {/* Watermark Logo */}
-      <div className="absolute bottom-4 right-4 z-10 opacity-60 hover:opacity-80 transition-opacity">
+      <div className="absolute bottom-6 right-6 z-10 opacity-60 hover:opacity-80 transition-opacity">
         <img
           src={logo}
           alt="Screenhound"
-          className="h-8 md:h-10 w-auto object-contain max-w-[120px]"
+          className="h-12 md:h-16 w-auto object-contain max-w-[180px]"
         />
       </div>
     </div>
